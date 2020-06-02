@@ -51,3 +51,8 @@ function custom_column_post_column_data( $columns, $post_id ) {
 }
 
 add_action( 'manage_posts_custom_column', 'custom_column_post_column_data', 10, 2 );
+
+// add custom column in pages
+add_filter('manage_pages_columns', 'custom_column_post_columns');
+
+add_action( 'manage_pages_custom_column', 'custom_column_post_column_data', 10, 2 );
