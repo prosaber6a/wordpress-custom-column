@@ -19,18 +19,27 @@ function custom_column_load_textdomain() {
 add_action( 'plugins_loaded', 'custom_column_load_textdomain' );
 
 function custom_column_post_columns( $columns ) {
-	print_r($columns);
 	// remove column form all post list
-	unset($columns['tags']);
-	unset($columns['comments']);
+	unset( $columns['tags'] );
+	unset( $columns['comments'] );
 
 	// change column order
-	unset($columns['author']);
-	unset($columns['date']);
+	unset( $columns['author'] );
+	unset( $columns['date'] );
 
 	$columns['author'] = "Author";
-	$columns['date'] = "Date";
+	$columns['date']   = "Date";
+
+	// Add new column
+	$columns['id'] = __( 'Post ID', 'custom-column' );
+
 	return $columns;
 }
 
 add_filter( 'manage_posts_columns', 'custom_column_post_columns' );
+
+function custom_column_post_column_data( $columns, $post_id ) {
+	echo $post_id;
+}
+
+add_action( 'manage_posts_custom_column', 'custom_column_post_column_data', 10, 2 );
