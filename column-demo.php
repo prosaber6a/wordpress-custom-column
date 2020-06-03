@@ -242,3 +242,85 @@ function custom_column_thumbnail_filter_data( $wpquery ) {
 
 add_action( 'pre_get_posts', 'custom_column_thumbnail_filter_data' );
 
+function custom_column_word_count_filter() {
+	if ( isset( $_GET['post_type'] ) && $_GET['post_type'] != 'post' ) {
+		return;
+	}
+
+	$values_arr = array(
+		'0' => __( 'Select a option', 'custom-column' ),
+		'1' => __( 'Above 400', 'custom-column' ),
+		'2' => __( '200 to 400', 'custom-column' ),
+		'3' => __( 'Below 200', 'custom-column' ),
+	);
+
+	$filter_value = isset( $_GET['word_count_filter'] ) ? $_GET['word_count_filter'] : '0';
+
+	$value = " ";
+	foreach ( $values_arr as $key => $value ) {
+		$selected = "";
+		if ( $key == $filter_value ) {
+			$selected = "selected";
+		}
+
+		$value .= sprintf( '<option %s value="%s">%s</option>', $selected, $key, $value );
+
+	}
+	?>
+    <select name="word_count_filter">
+		<?php
+		foreach ( $values_arr as $key => $value ) {
+			$selected = "";
+			if ( $key == $filter_value ) {
+				$selected = "selected";
+			}
+
+			printf( '<option %s value="%s">%s</option>', $selected, $key, $value );
+
+		}
+
+		?>
+    </select>
+	<?php
+}
+
+add_action( 'restrict_manage_posts', 'custom_column_word_count_filter' );
+
+function custom_column_word_count_filter_data( $wpquery ) {
+	if ( ! is_admin() ) {
+		return;
+	}
+
+	$filter_value = isset( $_GET['word_count_filter'] ) ? $_GET['word_count_filter'] : '0';
+	if ( '1' == $filter_value ) {
+		$wpquery->set( 'meta_query', array(
+			array(
+				'key'     => 'word_num',
+				'value'   => 400,
+				'compare' => '>=',
+				'type'    => 'NUMERIC'
+			)
+		) );
+	} elseif ( '2' == $filter_value ) {
+		$wpquery->set( 'meta_query', array(
+			array(
+				'key'     => 'word_num',
+				'value'   => array( 200, 400 ),
+				'compare' => 'BETWEEN',
+				'type'    => 'NUMERIC'
+			)
+		) );
+	} elseif ( '3' == $filter_value ) {
+		$wpquery->set( 'meta_query', array(
+			array(
+				'key'     => 'word_num',
+				'value'   => 200,
+				'compare' => '<=',
+				'type'    => 'NUMERIC'
+			)
+		) );
+	}
+
+}
+
+add_action( 'pre_get_posts', 'custom_column_word_count_filter_data' );
