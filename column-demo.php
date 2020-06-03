@@ -162,7 +162,7 @@ function custom_column_filter_data( $wpquery ) {
 	if ( ! is_admin() ) {
 		return;
 	}
-	$filter_value = isset( $_GET['demo_filter'] ) ? $_GET['demo_filter'] : '';
+	$filter_value = isset( $_GET['demo_filter'] ) ? $_GET['demo_filter'] : '0';
 	if ( '1' == $filter_value ) {
 		$wpquery->set( 'post__in', array( 1, 37, 41 ) );
 	} elseif ( '2' == $filter_value ) {
@@ -172,4 +172,73 @@ function custom_column_filter_data( $wpquery ) {
 
 add_action( 'pre_get_posts', 'custom_column_filter_data' );
 
+
+function custom_column_thumbnail_filter() {
+	if ( isset( $_GET['post_type'] ) && $_GET['post_type'] != 'post' ) {
+		return;
+	}
+
+	$values_arr = array(
+		'0' => __( 'Select a option', 'custom-column' ),
+		'1' => __( 'Has Thumbnail', 'custom-column' ),
+		'2' => __( 'No Thumbnail', 'custom-column' ),
+	);
+
+	$filter_value = isset( $_GET['thumb_filter'] ) ? $_GET['thumb_filter'] : '0';
+
+	$value = " ";
+	foreach ( $values_arr as $key => $value ) {
+		$selected = "";
+		if ( $key == $filter_value ) {
+			$selected = "selected";
+		}
+
+		$value .= sprintf( '<option %s value="%s">%s</option>', $selected, $key, $value );
+
+	}
+	?>
+    <select name="thumb_filter">
+		<?php
+		foreach ( $values_arr as $key => $value ) {
+			$selected = "";
+			if ( $key == $filter_value ) {
+				$selected = "selected";
+			}
+
+			printf( '<option %s value="%s">%s</option>', $selected, $key, $value );
+
+		}
+
+		?>
+    </select>
+	<?php
+
+}
+
+
+add_action( 'restrict_manage_posts', 'custom_column_thumbnail_filter' );
+
+function custom_column_thumbnail_filter_data( $wpquery ) {
+	if ( ! is_admin() ) {
+		return;
+	}
+	$filter_value = isset( $_GET['thumb_filter'] ) ? $_GET['thumb_filter'] : '';
+	if ( '1' == $filter_value ) {
+		$wpquery->set( 'meta_query', array(
+			array(
+				'key'     => '_thumbnail_id',
+				'compare' => 'EXISTS'
+			)
+		) );
+	} elseif ( '2' == $filter_value ) {
+		$wpquery->set( 'meta_query', array(
+			array(
+				'key'     => '_thumbnail_id',
+				'compare' => 'NOT EXISTS'
+			)
+		) );
+	}
+}
+
+add_action( 'pre_get_posts', 'custom_column_thumbnail_filter_data' );
 
